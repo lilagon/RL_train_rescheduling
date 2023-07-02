@@ -37,7 +37,9 @@ def mip_cost(alterArcSet, ag_graph, nodes):
     #m.setParam("TimeLimit", 120)
     m.setParam('OutputFlag', 0)
     m.setParam('Heuristics', 0)
+    m.setParam(GRB.Param.Presolve, 0)
     m.setParam(GRB.Param.Cuts, 0)
+    m.setParam(GRB.Param.VarBranch, 1)
 
     t = m.addVars(num_nodes, vtype=GRB.CONTINUOUS, name='t')
     z = m.addVars(num_alterArcSet, vtype=GRB.BINARY, name='z')
@@ -59,12 +61,12 @@ def mip_cost(alterArcSet, ag_graph, nodes):
 
     #m.write('mip.lp')
     m.optimize()
-    #print(m.Runtime)
+    print(m.Runtime)
 
-    #for v in m.getVars():
-    #    if v.varName[0] == 't' :
-    #        node_idx = int(v.varName[2:v.varName.find(']')])
-    #        print('%s %g %s' % (v.varName, v.x, ag.transTimeToStr(round(v.x))), nodes[node_idx].name)
+    for v in m.getVars():
+        if v.varName[0] == 't' :
+            node_idx = int(v.varName[2:v.varName.find(']')])
+            print('%s %g %s' % (v.varName, v.x, ag.transTimeToStr(round(v.x))), nodes[node_idx].name)
 
     return m.objVal
 
@@ -79,6 +81,7 @@ if __name__=='__main__':
     m.setParam("Threads", 1)
     m.setParam('OutputFlag', 0)
     m.setParam('Heuristics', 0)
+    m.setParam(GRB.Param.MIPFocus, 3)
     t = m.addVars(num_nodes, vtype=GRB.CONTINUOUS, name='t')
     z = m.addVars(mip.num_alterArcSet, vtype=GRB.BINARY, name='z')
 

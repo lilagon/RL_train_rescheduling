@@ -331,8 +331,12 @@ def gen_alter_arcs2(p_graph, nodes):
                      #node_s_i = nodes[node_i.next_fixed_node]
                      #node_s_j = nodes[node_j.next_fixed_node]
                      alterArcs = alterArcInfo(node_s_j, node_i, node_s_i, node_j)
+
+
                      #print(alterArcs)
                      alterArcSet.append(alterArcs)
+
+
 
     return  alterArcSet
 

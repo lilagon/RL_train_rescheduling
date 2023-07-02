@@ -17,8 +17,8 @@ import time
 
 from environment_ag_20220402 import Env
 from keras.layers import Dense
-from tensorflow.keras.optimizers import Adam
-#from keras.optimizers import Adam
+#from tensorflow.keras.optimizers import Adam
+from keras.optimizers import Adam
 from keras.models import Sequential
 from keras import regularizers
 from keras import backend as K
@@ -221,16 +221,18 @@ if __name__ == "__main__":
         load_file = sys.argv[5]
 
     #network_file = "seoul_network.txt"
-    #train_file = "seoul_train-22.txt"
+    #train_file = "seoul_train-10.txt"
     #max_delay = 300
 
     network_file = sys.argv[1]
     train_file = sys.argv[2]
     max_delay = int(sys.argv[3])
 
+
     load_file = "./save_model/20220402_DQN_49_12_9600.h5"
 
-
+    #for max_delay in max_delays:
+    #    for train_file in train_files:
     env = Env(network_file, train_file, max_delay)
 
     n_blocks = len(env.tc_list)
@@ -250,7 +252,7 @@ if __name__ == "__main__":
 
     e = 0
     for e in range(EPISODES, EPISODES + 100):
-        start_time = time.time()
+
         e += 1
         #print ("> Episode {0}".format (e))
         state = env.reset ()
@@ -271,10 +273,13 @@ if __name__ == "__main__":
         done = False
         current_best = initial_obj
         prev_action = -1
+        RL_time = 0
+        print("Start-RL")
         for iteration in range(ITERATION_PER_EPISODE):
             global_step += 1
+            tmp = time.time()
             action = agent.get_action(state, env.current_postion, env.next_pos)
-
+            RL_time += time.time() - tmp
             next_state, reward, is_terminal = env.step (action)
 
             pre_action = action
@@ -289,15 +294,14 @@ if __name__ == "__main__":
             if done: break
 
             # if global_step == 5: sys.exit()
-            print("episode:", e, "global step:", global_step, "iteration", iteration, "action:", action, "reward:",
-                  reward, "current obj.:", env.current_lp_cost,
-                  "action_type:", agent.action_type, "improvement:", initial_obj - env.current_lp_cost, "epsilon:",
-                  agent.epsilon, "best:", current_best, "postion:", env.current_postion)
+            #print("episode:", e, "global step:", global_step, "iteration", iteration, "action:", action, "reward:",
+            #      reward, "current obj.:", env.current_lp_cost,
+            #      "action_type:", agent.action_type, "improvement:", initial_obj - env.current_lp_cost, "epsilon:",
+            #      agent.epsilon, "best:", current_best, "postion:", env.current_postion)
 
         objs.append (env.current_lp_cost)
-        print("the end of episode:", e, "\t current obj.:\t", env.current_lp_cost, "\t mip cost:\t", env.mip)
-        f.write(str(e) + "\t" + str(env.n_trains) + "\t"+ str(env.current_lp_cost) + "\t" + str(0) + "\t" + str(env.mip) + "\t"+ str(
-                time.time() - start_time) + "\t" + str(0) + "\t" + str(mip_time) + "\t" + str(ag.results(env.ag_graph, env.nodes)/env.n_trains) + "\n")
+        #print("the end of episode:", e, "\t current obj.:\t", env.current_lp_cost, "\t mip cost:\t", env.mip)
+        f.write(str(e) + "\t" + str(env.n_trains) + "\t"+ str(env.current_lp_cost) + "\t" + str(0) + "\t" + str(env.mip) + "\t"+ str(RL_time) + "\t" + str(0) + "\t" + str(mip_time) + "\t" + str(ag.results(env.ag_graph, env.nodes)/env.n_trains) + "\n")
         if env.current_lp_cost == env.mip:
             n_optimal += 1
 
